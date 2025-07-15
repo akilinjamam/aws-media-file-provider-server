@@ -3,10 +3,18 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { awsService } from "./aws.service";
 import { MulterRequest } from "../../interface/error";
+import { AppError } from "../../errors/AppError";
 
 const postAwsMediaFileController = catchAsync(async (req, res) => {
   const files = req.files as MulterRequest[] | undefined;
-  console.log(files);
+
+  if (files?.length) {
+    throw new AppError(
+      StatusCodes.IM_A_TEAPOT,
+      "I'm a teapot.temporarily switched off."
+    );
+  }
+
   if (!files) {
     return sendResponse(res, {
       statusCode: StatusCodes.BAD_REQUEST,
