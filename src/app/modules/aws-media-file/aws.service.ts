@@ -51,7 +51,12 @@ const postAwsMediaFileService: AwsMediaFileService = async (files) => {
       fs.unlinkSync(file.path);
     }
 
-    return fileUrls;
+    throw new AppError(
+      StatusCodes.IM_A_TEAPOT,
+      "I'm a teapot.temporarily switched off."
+    );
+
+    // return fileUrls;
   } catch (error) {
     // Delete local uploaded files on error
     for (const file of files) {
