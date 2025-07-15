@@ -8,7 +8,7 @@ const app: Application = express();
 app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("welcome to aws micro server for media file provider....");
+  res.send("welcome to aws micro server for media file provider !!!");
 });
 
 app.use("/api/v1/", router);
