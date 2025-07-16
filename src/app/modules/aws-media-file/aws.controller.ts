@@ -8,13 +8,6 @@ import { AppError } from "../../errors/AppError";
 const postAwsMediaFileController = catchAsync(async (req, res) => {
   const files = req.files as MulterRequest[] | undefined;
 
-  if (files?.length) {
-    throw new AppError(
-      StatusCodes.IM_A_TEAPOT,
-      "I'm a teapot.temporarily switched off."
-    );
-  }
-
   if (!files) {
     return sendResponse(res, {
       statusCode: StatusCodes.BAD_REQUEST,
