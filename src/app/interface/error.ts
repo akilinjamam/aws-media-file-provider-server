@@ -15,5 +15,4 @@ export interface MulterRequest extends Request {
   files: Express.Multer.File[];
   originalname: string;
   mimetype: string;
-  ACL: string;
 }
