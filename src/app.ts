@@ -7,6 +7,7 @@ import { quotes } from "./app/quotes";
 const app: Application = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req: Request, res: Response) => {
   const rendomIndex = Math.floor(Math.random() * quotes.length);
