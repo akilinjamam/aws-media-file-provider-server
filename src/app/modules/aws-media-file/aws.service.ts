@@ -1,6 +1,10 @@
 import { MulterRequest } from "../../interface/error";
 import fs from "fs";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  ObjectCannedACL,
+} from "@aws-sdk/client-s3";
 import config from "../../config";
 import { AppError } from "../../errors/AppError";
 import { StatusCodes } from "http-status-codes";
@@ -39,6 +43,7 @@ const postAwsMediaFileService: AwsMediaFileService = async (files) => {
         Key: `${Date.now()}_${file.originalname}`,
         Body: fileStream,
         ContentType: file.mimetype,
+        ACL: ObjectCannedACL.public_read,
       };
 
       const command = new PutObjectCommand(params);
@@ -62,7 +67,10 @@ const postAwsMediaFileService: AwsMediaFileService = async (files) => {
       }
     }
 
-    throw new AppError(StatusCodes.BAD_REQUEST, "something went wrong");
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      error instanceof Error ? error.message : String(error)
+    );
   }
 };
 
