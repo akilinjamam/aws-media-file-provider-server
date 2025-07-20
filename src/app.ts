@@ -12,7 +12,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: ["http://127.0.0.1:5500"],
+    origin: [
+      "http://127.0.0.1:5500",
+      "https://s3-file-upload-akilinjamam.netlify.app",
+    ],
     methods: "POST",
     credentials: true,
   })
