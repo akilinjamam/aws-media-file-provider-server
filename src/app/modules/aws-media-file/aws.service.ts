@@ -8,6 +8,8 @@ import { StatusCodes } from "http-status-codes";
 type AwsMediaFileService = (files: MulterRequest[]) => any;
 
 const postAwsMediaFileService: AwsMediaFileService = async (files) => {
+  console.log(files);
+  const fileType = files?.map((type) => type.mimetype);
   if (
     !config.aws_region ||
     !config.aws_access_key_id ||
@@ -51,7 +53,10 @@ const postAwsMediaFileService: AwsMediaFileService = async (files) => {
       fs.unlinkSync(file.path);
     }
 
-    return fileUrls;
+    return {
+      url: fileUrls,
+      fileType,
+    };
   } catch (error) {
     // Delete local uploaded files on error
     for (const file of files) {
