@@ -6,6 +6,7 @@ import { AppError } from "../../errors/AppError";
 import { StatusCodes } from "http-status-codes";
 
 type AwsMediaFileService = (files: MulterRequest[]) => any;
+type AwsMediaFileServiceAlter = (files: Express.MulterS3.File[]) => any;
 
 const postAwsMediaFileService: AwsMediaFileService = async (files) => {
   console.log(files);
@@ -73,7 +74,19 @@ const postAwsMediaFileService: AwsMediaFileService = async (files) => {
     );
   }
 };
+const postDirectAwsMediaFileService: AwsMediaFileServiceAlter = async (
+  files
+) => {
+  const urls = files.map((file) => file.location);
+  const fileTypes = files.map((file) => file.mimetype);
+
+  return {
+    url: urls,
+    fileType: fileTypes,
+  };
+};
 
 export const awsService = {
   postAwsMediaFileService,
+  postDirectAwsMediaFileService,
 };

@@ -26,7 +26,29 @@ const postAwsMediaFileController = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const postDirectAwsMediaFileController = catchAsync(async (req, res) => {
+  const files = req.files as Express.MulterS3.File[] | undefined;
+
+  if (!files) {
+    return sendResponse(res, {
+      statusCode: StatusCodes.BAD_REQUEST,
+      success: false,
+      message: "No files were uploaded.",
+      data: null,
+    });
+  }
+
+  const result = await awsService.postDirectAwsMediaFileService(files);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "data url found successfully",
+    data: result,
+  });
+});
 
 export const awsController = {
   postAwsMediaFileController,
+  postDirectAwsMediaFileController,
 };
