@@ -1,6 +1,12 @@
 import { MulterRequest } from "../../interface/error";
 import fs from "fs";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+  S3,
+} from "@aws-sdk/client-s3";
 import config from "../../config";
 import { AppError } from "../../errors/AppError";
 import { StatusCodes } from "http-status-codes";
@@ -31,7 +37,7 @@ const postAwsMediaFileService: AwsMediaFileService = async (files) => {
       config.aws_region,
       config.aws_access_key,
       config.aws_access_key_id,
-      config.s3_bucket_name
+      config.s3_bucket_name,
     );
     const fileUrls = [];
 
@@ -70,12 +76,12 @@ const postAwsMediaFileService: AwsMediaFileService = async (files) => {
 
     throw new AppError(
       StatusCodes.BAD_REQUEST,
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
   }
 };
 const postDirectAwsMediaFileService: AwsMediaFileServiceAlter = async (
-  files
+  files,
 ) => {
   const urls = files.map((file) => file.location);
   const fileTypes = files.map((file) => file.mimetype);
@@ -86,7 +92,71 @@ const postDirectAwsMediaFileService: AwsMediaFileServiceAlter = async (
   };
 };
 
+const s3 = new S3Client({
+  region: config.aws_region,
+  credentials: {
+    accessKeyId: config.aws_access_key_id!,
+    secretAccessKey: config.aws_access_key!,
+  },
+});
+
+const deleteDirectAwsMedisFileService = async (key: string) => {
+  if (!config.s3_bucket_name) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "S3 bucket name is missing");
+  }
+
+  try {
+    const command = new DeleteObjectCommand({
+      Bucket: config.s3_bucket_name,
+      Key: key,
+    });
+
+    await s3.send(command);
+    return {
+      deletedKey: key,
+    };
+  } catch (error) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      error instanceof Error ? error.message : String(error),
+    );
+  }
+};
+
+const updateDirectAwsMediaFileService = async (
+  key: string,
+  file: Express.MulterS3.File,
+) => {
+  if (!key) throw new AppError(StatusCodes.BAD_REQUEST, "key not found");
+
+  const splitedKey = key.split(".amazonaws.com/")?.[1];
+
+  await deleteDirectAwsMedisFileService(splitedKey);
+
+  return {
+    url: file.location,
+    fileType: file.mimetype,
+  };
+};
+
+const deleteMulipleAwsMediaFileService = async (keys: string[]) => {
+  if (keys.length === 0) return;
+
+  const objects = keys.map((key) => ({ Key: key }));
+
+  const command = new DeleteObjectsCommand({
+    Bucket: config.s3_bucket_name!,
+    Delete: { Objects: objects },
+  });
+
+  const response = await s3.send(command);
+  return response;
+};
+
 export const awsService = {
   postAwsMediaFileService,
   postDirectAwsMediaFileService,
+  deleteDirectAwsMedisFileService,
+  updateDirectAwsMediaFileService,
+  deleteMulipleAwsMediaFileService,
 };
